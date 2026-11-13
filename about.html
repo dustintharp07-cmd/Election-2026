@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="Sources, methods, limitations, and rebuild instructions for the North Carolina 2026 election analysis.">
 
-<title>About – Election</title>
+<title>Data &amp; method – THE COUNT · 2026 Election Results</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -32,33 +33,16 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-977607561cd60f84a551947bb62c3781.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-b140079c69951a8ddbb6567302ec6b9d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
-  "location": "navbar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "end",
-  "type": "overlay",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -73,6 +57,7 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<style>html{ scroll-behavior: smooth; }</style>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -86,10 +71,9 @@ ul.task-list li input[type="checkbox"] {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Election</span>
+    <span class="navbar-title">THE COUNT · 2026</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
@@ -97,11 +81,22 @@ ul.task-list li input[type="checkbox"] {
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
     <a class="nav-link" href="./index.html"> 
-<span class="menu-text">Home</span></a>
+<span class="menu-text">Overview</span></a>
   </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-states" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">States</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-states">    
+        <li>
+    <a class="dropdown-item" href="./north-carolina.html">
+ <span class="dropdown-text">North Carolina · 2026</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link active" href="./about.html" aria-current="page"> 
-<span class="menu-text">About</span></a>
+<span class="menu-text">Data &amp; method</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -111,23 +106,26 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
-    </div>
+    
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">About</h1>
+<h1 class="title">Data &amp; method</h1>
+</div>
+
+<div>
+  <div class="description">
+    Sources, methods, limitations, and rebuild instructions for the North Carolina 2026 election analysis.
+  </div>
 </div>
 
 
-
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page">
 
     
   
@@ -139,20 +137,113 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>About this site</p>
+<section class="page-intro">
+<p class="eyebrow">
+TRANSPARENCY / SOURCES / REPRODUCIBILITY
+</p>
+<h1>
+Show the work.<br><em>Respect the limits.</em>
+</h1>
+<p>
+This site uses published North Carolina election results and official voting-precinct geography. The featured graphics describe the files; they do not infer why people voted as they did.
+</p>
+</section>
+<section class="method-section">
+<p class="section-kicker">
+01 / Primary results
+</p>
+<h2>
+North Carolina State Board of Elections
+</h2>
+<p>
+The focal dataset is the NCSBE precinct-sorted results file for the November 3, 2026 general election. It reports candidate or referendum choice, party, county, precinct, election type, and vote totals by voting method. The results archive was retrieved November 13, 2026.
+</p>
+<ul class="source-list">
+<li>
+<a href="https://www.ncsbe.gov/results-data/election-results/historical-election-results-data">NCSBE · Historical Election Results Data</a>
+</li>
+<li>
+<a href="https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2026_11_03/results_pct_20261103.zip">Download · November 3, 2026 results ZIP</a>
+</li>
+<li>
+<a href="https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/results_pct_20241105.zip">Download · November 5, 2024 comparison ZIP</a>
+</li>
+<li>
+<a href="https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/layout_results_pct.txt">NCSBE · Results file layout</a>
+</li>
+</ul>
+<p>
+The original 2026 ZIP and the November 5, 2024 ZIP used for the historical comparison are preserved under <code>data/north-carolina/raw/</code>. The NCSBE archives include results for contests beyond the examples featured on the dashboard.
+</p>
+</section>
+<section class="method-section">
+<p class="section-kicker">
+02 / Precinct boundaries
+</p>
+<h2>
+Official geography, matched explicitly
+</h2>
+<p>
+The precinct map uses the <a href="https://www.nconemap.gov/datasets/NCDEM::voting-precincts/about">North Carolina Voting Precincts layer</a>, attributed to the North Carolina State Board of Elections, the Center for Geographic Information and Analysis, and NC OneMap. The statewide GeoJSON is stored in <code>data/north-carolina/geography/</code>.
+</p>
+<p>
+Result precinct IDs are matched to boundary precinct IDs using the county name and precinct ID. Of 2,626 real precincts in the featured Senate result, 2,625 match exactly. Henderson County precinct <code>CV</code> has no matching polygon and is omitted from the map; it is not guessed or reassigned. The distributed boundaries are generalized with a 100-meter topology-preserving simplification for browser performance.
+</p>
+<p>
+The precinct map contains real precincts only. Administrative reporting units, including early-voting sites, do not have precinct polygons and are excluded from the map. They remain included in the statewide and county vote totals.
+</p>
+</section>
+<section class="method-section">
+<p class="section-kicker">
+03 / Reading the graphics
+</p>
+<h2>
+What the numbers do—and do not—say
+</h2>
+<ul class="method-list">
+<li>
+<strong>U.S. Senate candidate chart.</strong> Candidate share is each candidate’s total votes divided by all candidate-choice votes in the contest, including minor-party candidates. It is not a turnout measure.
+</li>
+<li>
+<strong>Precinct map.</strong> Fill color identifies the party of the candidate with the most votes among the matched precinct’s reported candidate choices. Hover labels show the candidate, votes, share of mapped candidate votes, and lead over the next candidate.
+</li>
+<li>
+<strong>County table.</strong> County vote totals include all NCSBE reporting units in that county, including administrative precincts; county shares therefore need not equal a sum over the polygons shown on the map.
+</li>
+<li>
+<strong>2024–2026 comparison.</strong> Democratic share is calculated as Democratic votes divided by Democratic plus Republican votes in the county’s State Senate contests. Third-party and unaffiliated choices are excluded from that two-party denominator. Both years are November general elections, and results are aggregated to the same 100 counties. Different candidates—and district-level contests—are being compared; the chart does not track individuals, establish causes, or describe voter motivation.
+</li>
+</ul>
+<p>
+All figures reproduce the source files as downloaded. This project does not independently certify the November 2026 results or label them certified.
+</p>
+</section>
+<section class="method-section">
+<p class="section-kicker">
+04 / Rebuild and extend
+</p>
+<h2>
+Designed to update—and to grow
+</h2>
+<p>
+From the project root, run <code>Rscript scripts/process_north_carolina.R</code> to rebuild the processed tables and precinct map, then run <code>quarto render</code> to recreate the HTML site. To update the analysis, replace the raw results ZIP with the new official file and update its filename in the processing script if the election date changes.
+</p>
+<p>
+Publishing to GitHub Pages is supported by this Quarto website project; publish from the repository root with <code>quarto publish gh-pages</code>.
+</p>
+<p>
+The analysis uses R packages <code>tidyverse</code>, <code>sf</code>, <code>leaflet</code>, <code>plotly</code>, <code>DT</code>, and <code>scales</code>. If any are missing, install them in R with <code>install.packages(c(“tidyverse”, “sf”, “leaflet”, “plotly”, “DT”, “scales”))</code>. Quarto must also be installed to render or publish the site.
+</p>
+<p>
+State-specific assets and derived files live under <code>data/north-carolina/</code>; the navigation already groups state dashboards beneath “States.” Additional state data and pages can be added there without changing the North Carolina analysis.
+</p>
+</section>
 
 
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
     const isCodeAnnotation = (el) => {
       for (const clz of el.classList) {
         if (clz.startsWith('code-annotation-')) {                     
@@ -217,7 +308,7 @@ ul.task-list li input[type="checkbox"] {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/dustintharp07-cmd\.github\.io\/Election-2026\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -231,6 +322,11 @@ ul.task-list li input[type="checkbox"] {
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
         }
       }
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
@@ -545,8 +641,22 @@ ul.task-list li input[type="checkbox"] {
   });
   </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Independent analysis · Official source data linked throughout</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>North Carolina · 2026</p>
+</div>
+  </div>
+</footer>
 
 
 
 
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>
