@@ -181,16 +181,22 @@ The original 2026 ZIP and the November 5, 2024 ZIP used for the historical compa
 02 / Precinct boundaries
 </p>
 <h2>
-Official geography, matched explicitly
+Official precincts and county outlines
 </h2>
 <p>
 The precinct map uses the <a href="https://www.nconemap.gov/datasets/NCDEM::voting-precincts/about">North Carolina Voting Precincts layer</a>, attributed to the North Carolina State Board of Elections, the Center for Geographic Information and Analysis, and NC OneMap. The statewide GeoJSON is stored in <code>data/north-carolina/geography/</code>.
+</p>
+<p>
+The regional and county views use the North Carolina Geodetic Survey’s <a href="https://services1.arcgis.com/YBWrN5qiESVpqi92/arcgis/rest/services/ncgs_state_county_boundary/FeatureServer/0">State and County Boundary layer</a>. It contains all 100 county outlines and is stored alongside the precinct geography. County result totals are matched to this layer by county name; the county boundaries are not inferred from vote data.
 </p>
 <p>
 Result precinct IDs are matched to boundary precinct IDs using the county name and precinct ID. Of 2,626 real precincts in the featured Senate result, 2,625 match exactly. Henderson County precinct <code>CV</code> has no matching polygon and is omitted from the map; it is not guessed or reassigned. The distributed boundaries are generalized with a 100-meter topology-preserving simplification for browser performance.
 </p>
 <p>
 The precinct map contains real precincts only. Administrative reporting units, including early-voting sites, do not have precinct polygons and are excluded from the map. They remain included in the statewide and county vote totals.
+</p>
+<p>
+County outlines are simplified by 100 meters for display. Regional outlines are dissolved from the original county geometry, then simplified by 200 meters. Shared-border adjacency is calculated from the original source boundaries before simplification, so display simplification does not change county grouping or vote totals.
 </p>
 </section>
 <section class="method-section">
@@ -202,10 +208,22 @@ What the numbers do—and do not—say
 </h2>
 <ul class="method-list">
 <li>
+<strong>Basemap.</strong> The interactive maps use only the election-area polygons on a neutral background. No external tiled basemap or map API key is required.
+</li>
+<li>
 <strong>U.S. Senate candidate chart.</strong> Candidate share is each candidate’s total votes divided by all candidate-choice votes in the contest, including minor-party candidates. It is not a turnout measure.
 </li>
 <li>
-<strong>Precinct map.</strong> Fill color identifies the party of the candidate with the most votes among the matched precinct’s reported candidate choices. Hover labels show the candidate, votes, share of mapped candidate votes, and lead over the next candidate.
+<strong>Regional view.</strong> Each county is assigned the leading party using its full reported U.S. Senate candidate totals. Counties are connected only when their official boundaries touch and their leading parties match; each connected component is dissolved separately. Candidate votes are summed across the counties in that region, then shares and the margin over the next candidate are recalculated from those sums. A region can include several counties, but disconnected places are never combined.
+</li>
+<li>
+<strong>County view.</strong> Each county’s winner, candidate votes, and shares use all NCSBE reporting units in that county, including administrative precincts.
+</li>
+<li>
+<strong>Precinct view.</strong> Fill color identifies the party of the candidate with the most votes among the matched real precinct’s reported candidate choices. Hover labels and popups show candidate totals, vote shares, and the lead over the next candidate. Of the 2,626 real precincts in the returns, 2,625 have an exact boundary match.
+</li>
+<li>
+<strong>Map colors.</strong> Blue represents a Democratic lead and red a Republican lead. Lighter shades indicate a narrower lead; the legend groups candidate-vote margins into under 5, 5–10, 10–20, and over 20 percentage points.
 </li>
 <li>
 <strong>County table.</strong> County vote totals include all NCSBE reporting units in that county, including administrative precincts; county shares therefore need not equal a sum over the polygons shown on the map.
@@ -226,7 +244,7 @@ All figures reproduce the source files as downloaded. This project does not inde
 Designed to update—and to grow
 </h2>
 <p>
-From the project root, run <code>Rscript scripts/process_north_carolina.R</code> to rebuild the processed tables and precinct map, then run <code>quarto render</code> to recreate the HTML site. To update the analysis, replace the raw results ZIP with the new official file and update its filename in the processing script if the election date changes.
+From the project root, run <code>Rscript scripts/process_north_carolina.R</code> to rebuild the processed result tables and map layers, then run <code>quarto render</code> to recreate the HTML site. The shared map renderer is in <code>scripts/election_map.R</code>. To update the analysis, replace the raw results ZIP with the new official file and update its filename in the processing script if the election date changes.
 </p>
 <p>
 Publishing to GitHub Pages is supported by this Quarto website project; publish from the repository root with <code>quarto publish gh-pages</code>.
