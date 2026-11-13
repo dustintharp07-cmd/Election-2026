@@ -1,0 +1,401 @@
+---
+title: "North Carolina · 2026"
+description: "Interactive precinct and county analysis of North Carolina's November 2026 election results."
+page-layout: full
+---
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(dplyr)
+library(readr)
+library(plotly)
+library(leaflet)
+library(sf)
+library(DT)
+library(htmltools)
+library(scales)
+
+senate <- read_csv(
+  "data/north-carolina/processed/us_senate_2026_statewide.csv",
+  show_col_types = FALSE
+)
+county_results <- read_csv(
+  "data/north-carolina/processed/us_senate_2026_county.csv",
+  show_col_types = FALSE
+)
+precinct_results <- read_csv(
+  "data/north-carolina/processed/us_senate_2026_precincts.csv",
+  show_col_types = FALSE
+)
+county_comparison <- read_csv(
+  "data/north-carolina/processed/state_senate_county_comparison.csv",
+  show_col_types = FALSE
+)
+precinct_map <- st_read(
+  "data/north-carolina/processed/us_senate_2026_precinct_map.geojson",
+  quiet = TRUE
+)
+
+party_colors <- c(
+  DEM = "#315C96",
+  REP = "#B64B43",
+  LIB = "#C18A24",
+  GRE = "#65816D"
+)
+
+leader <- senate |> arrange(desc(votes), candidate) |> slice(1)
+candidate_vote_total <- sum(senate$votes)
+precinct_count <- precinct_results |>
+  distinct(county, precinct) |>
+  nrow()
+map_count <- nrow(precinct_map)
+map_coverage <- map_count / precinct_count
+
+senate <- senate |>
+  mutate(
+    candidate_label = paste0(candidate, " · ", party),
+    bar_color = if_else(
+      party %in% names(party_colors),
+      unname(party_colors[party]),
+      "#747A80"
+    )
+  ) |>
+  arrange(votes)
+
+precinct_map$label_html <- paste0(
+  "<strong>", htmlEscape(precinct_map$county), " · Precinct ",
+  htmlEscape(precinct_map$precinct), "</strong><br>",
+  "Leading candidate: ", htmlEscape(precinct_map$leader),
+  " (", htmlEscape(precinct_map$party), ")<br>",
+  comma(precinct_map$leader_votes), " votes · ",
+  percent(precinct_map$leader_share, accuracy = 0.1), " of mapped candidate votes<br>",
+  "Lead over next candidate: ", comma(precinct_map$margin), " votes"
+)
+
+legend_parties <- names(party_colors)[
+  names(party_colors) %in% unique(precinct_map$party)
+]
+```
+
+::: {.dashboard-header}
+::: {.dashboard-title}
+::: {.eyebrow}
+<span class="status-dot"></span> Results as posted · November 3, 2026
+:::
+
+# North Carolina
+
+::: {.dashboard-deck}
+A statewide Senate race, seen from the precinct up—and a careful county comparison with 2024.
+:::
+:::
+
+::: {.header-stamp}
+<span>OFFICIAL SOURCE</span>
+<strong>NCSBE</strong>
+<small>Data retrieved<br>Nov 13, 2026</small>
+:::
+:::
+
+::: {.metric-grid}
+::: {.metric-card}
+<span class="metric-label">Leading candidate · U.S. Senate</span>
+
+**`r leader$candidate`**
+
+<span class="metric-detail">`r leader$party` · `r percent(leader$share, accuracy = 0.1)` of candidate votes</span>
+:::
+
+::: {.metric-card}
+<span class="metric-label">Candidate votes · U.S. Senate</span>
+
+**`r comma(candidate_vote_total)`**
+
+<span class="metric-detail">Sum of all listed candidate choices in the source file</span>
+:::
+
+::: {.metric-card}
+<span class="metric-label">Counties represented</span>
+
+**`r nrow(county_results)` / 100**
+
+<span class="metric-detail">County totals include administrative precinct entries</span>
+:::
+
+::: {.metric-card}
+<span class="metric-label">Real precincts mapped</span>
+
+**`r comma(map_count)` / `r comma(precinct_count)`**
+
+<span class="metric-detail">`r percent(map_coverage, accuracy = 0.01)` matched to official boundaries</span>
+:::
+:::
+
+::: {.analysis-section #candidate-results}
+::: {.section-heading}
+::: {.heading-title}
+::: {.section-kicker}
+01 / Statewide result
+:::
+
+## One race. Four candidates.
+:::
+
+::: {.section-deck}
+Each bar shows a candidate’s reported votes in the U.S. Senate race. Share is calculated from the sum of listed candidate votes, including minor-party candidates.
+:::
+:::
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+senate_chart <- plot_ly(
+  data = senate,
+  x = ~votes,
+  y = ~candidate_label,
+  type = "bar",
+  orientation = "h",
+  marker = list(color = senate$bar_color),
+  text = ~paste0(comma(votes), " votes · ", percent(share, accuracy = 0.1)),
+  hovertemplate = "%{y}<br>%{text}<extra></extra>"
+) |>
+  layout(
+    xaxis = list(title = "Candidate votes", tickformat = ",", rangemode = "tozero"),
+    yaxis = list(title = "", categoryorder = "array", categoryarray = senate$candidate_label),
+    margin = list(l = 160, r = 24, t = 14, b = 54),
+    showlegend = FALSE,
+    hoverlabel = list(bgcolor = "#142536", font = list(color = "#FFFFFF"))
+  ) |>
+  config(displayModeBar = FALSE, responsive = TRUE)
+
+senate_chart
+```
+
+::: {.chart-caption}
+**How to read it.** Hover for exact votes and share. The shares use all candidate votes reported for this single-choice contest; they are not turnout percentages. These are the totals in the downloaded file, not an independent certification statement.
+:::
+:::
+
+::: {.analysis-section #precinct-map}
+::: {.section-heading}
+::: {.heading-title}
+::: {.section-kicker}
+02 / Precinct map
+:::
+
+## Where each candidate led.
+:::
+
+::: {.section-deck}
+Every polygon is an official North Carolina voting precinct boundary matched to the U.S. Senate result by county and precinct ID. Pan, zoom, and hover for the leading candidate, party, votes, share, and margin.
+:::
+:::
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+precinct_map |>
+  leaflet(options = leafletOptions(preferCanvas = TRUE)) |>
+  addProviderTiles(
+    "CartoDB.Positron",
+    options = providerTileOptions(noWrap = TRUE)
+  ) |>
+  addPolygons(
+    fillColor = ~ifelse(
+      party %in% names(party_colors),
+      unname(party_colors[party]),
+      "#747A80"
+    ),
+    fillOpacity = 0.82,
+    color = "#F5F3EE",
+    weight = 0.45,
+    opacity = 0.9,
+    label = lapply(precinct_map$label_html, HTML),
+    highlightOptions = highlightOptions(
+      weight = 1.8,
+      color = "#142536",
+      fillOpacity = 0.96,
+      bringToFront = TRUE
+    )
+  ) |>
+  addLegend(
+    position = "bottomright",
+    colors = unname(party_colors[legend_parties]),
+    labels = legend_parties,
+    title = "Party of precinct leader",
+    opacity = 0.9
+  ) |>
+  setView(lng = -79.8, lat = 35.55, zoom = 6)
+```
+
+::: {.chart-caption}
+**Coverage note.** The map includes `r comma(map_count)` of `r comma(precinct_count)` real precinct IDs (`r percent(map_coverage, accuracy = 0.01)`). The unmatched Henderson County precinct remains in the source-based totals but is not placed on the map. Administrative precincts such as early-voting sites are not polygons and are excluded from this map; statewide and county totals include their reported votes.
+:::
+:::
+
+::: {.analysis-section #county-results}
+::: {.section-heading}
+::: {.heading-title}
+::: {.section-kicker}
+03 / County detail
+:::
+
+## Look closer than the statewide margin.
+:::
+
+::: {.section-deck}
+Search or sort the 100 county summaries. “Leader” is the candidate with the most votes in the posted file; margin is the difference from the next candidate.
+:::
+:::
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+county_table <- county_results |>
+  transmute(
+    County = county,
+    Leader = leader,
+    Party = party,
+    `Leader votes` = leader_votes,
+    `Leader share` = leader_share,
+    `Margin over next` = margin
+  )
+
+datatable(
+  county_table,
+  rownames = FALSE,
+  filter = "top",
+  class = "stripe hover compact",
+  options = list(
+    pageLength = 12,
+    lengthMenu = c(12, 25, 50, 100),
+    order = list(list(5, "asc")),
+    scrollX = TRUE,
+    autoWidth = TRUE
+  )
+) |>
+  formatRound(columns = c("Leader votes", "Margin over next"), digits = 0) |>
+  formatPercentage(columns = "Leader share", digits = 1)
+```
+
+::: {.chart-caption}
+**How to read it.** County vote shares use each candidate’s reported county total divided by all candidate votes in that county. Because totals include both real and administrative precinct entries, they are not calculated from the mapped precinct subset.
+:::
+:::
+
+::: {.analysis-section #historical-comparison}
+::: {.section-heading}
+::: {.heading-title}
+::: {.section-kicker}
+04 / Historical comparison
+:::
+
+## Did county-level party share move?
+:::
+
+::: {.section-deck}
+Each dot is a county. The chart compares Democratic share of Democratic-plus-Republican votes aggregated across North Carolina State Senate races in the 2024 and 2026 general elections.
+:::
+:::
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+comparison_chart <- plot_ly() |>
+  add_trace(
+    x = c(0, 1),
+    y = c(0, 1),
+    type = "scatter",
+    mode = "lines",
+    name = "No change",
+    line = list(color = "#AEB5BA", dash = "dash", width = 1.5),
+    hoverinfo = "skip"
+  ) |>
+  add_trace(
+    data = county_comparison,
+    x = ~dem_share_2024,
+    y = ~dem_share_2026,
+    type = "scatter",
+    mode = "markers",
+    name = "County",
+    text = ~paste0(
+      county,
+      "<br>2024: ", percent(dem_share_2024, accuracy = 0.1),
+      "<br>2026: ", percent(dem_share_2026, accuracy = 0.1),
+      "<br>Change: ", sprintf("%+.1f pp", change_pp)
+    ),
+    hovertemplate = "%{text}<extra></extra>",
+    marker = list(
+      color = "#315C96",
+      size = 9,
+      opacity = 0.78,
+      line = list(color = "#FFFFFF", width = 1)
+    )
+  ) |>
+  layout(
+    xaxis = list(
+      title = "2024 Democratic two-party share",
+      tickformat = ".0%",
+      range = c(0, 1),
+      zeroline = FALSE
+    ),
+    yaxis = list(
+      title = "2026 Democratic two-party share",
+      tickformat = ".0%",
+      range = c(0, 1),
+      zeroline = FALSE
+    ),
+    margin = list(l = 72, r = 24, t = 14, b = 70),
+    showlegend = FALSE,
+    hoverlabel = list(bgcolor = "#142536", font = list(color = "#FFFFFF"))
+  ) |>
+  config(displayModeBar = FALSE, responsive = TRUE)
+
+comparison_chart
+```
+
+::: {.chart-caption}
+**How to read it.** A county above the dashed line had a larger Democratic share of the two major-party vote in 2026; below it, a smaller share. The denominator excludes third-party and unaffiliated choices. County totals are comparable geographic units, but this is an aggregate comparison of different candidates and elections—not a measure of how individual people voted or why.
+:::
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+largest_change <- county_comparison |>
+  slice_max(order_by = abs(change_pp), n = 1, with_ties = FALSE)
+more_democratic <- sum(county_comparison$change_pp > 0)
+```
+
+::: {.finding-note}
+::: {.finding-mark}
+FIELD NOTE
+:::
+
+Democratic two-party share was higher in 2026 than 2024 in **`r more_democratic` of 100 counties**. The largest absolute county change was in **`r largest_change$county`** (**`r sprintf("%+.1f", largest_change$change_pp)` percentage points**). These are descriptive differences in reported vote shares, not explanations of voter behavior.
+:::
+:::
+
+::: {.closing-source}
+::: {.section-kicker}
+Read the fine print
+:::
+
+## Every result starts with a source file.
+
+The complete NCSBE ZIP includes all contests, not just the races featured here. Read the data notes for provenance, precinct matching, comparison choices, and the steps to rebuild the analysis.
+
+[Sources & methodology →](about.html){.button .button-dark}
+:::

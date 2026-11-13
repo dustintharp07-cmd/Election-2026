@@ -1,7 +1,148 @@
 ---
-title: "Election"
+title: "North Carolina"
+subtitle: "The 2026 election, read precinct by precinct."
+page-layout: full
 ---
 
-This is a Quarto website.
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+library(readr)
+library(dplyr)
+library(scales)
+
+senate <- read_csv(
+  "data/north-carolina/processed/us_senate_2026_statewide.csv",
+  show_col_types = FALSE
+)
+leader <- senate |> arrange(desc(votes)) |> slice(1)
+```
+
+::: {.cover}
+::: {.cover-copy}
+::: {.eyebrow}
+<span class="status-dot"></span> North Carolina · November 3, 2026
+:::
+
+# The count, closer to the ground.
+
+::: {.cover-deck}
+A precinct-level look at North Carolina’s 2026 election results, built from the State Board of Elections’ published returns.
+:::
+
+::: {.cover-actions}
+[Explore the results →](north-carolina.html){.button .button-light}
+[How this analysis works](about.html){.text-link-light}
+:::
+:::
+
+::: {.cover-aside}
+::: {.aside-label}
+Featured statewide race
+:::
+
+## U.S. Senate
+
+::: {.aside-leader}
+Leading candidate in the published file
+:::
+
+::: {.aside-name}
+`r leader$candidate` <span>`r leader$party`</span>
+:::
+
+::: {.aside-rule}
+:::
+
+::: {.aside-stats}
+::: {.aside-stat}
+**`r percent(leader$share, accuracy = 0.1)`**<br>
+<small>of candidate votes</small>
+:::
+::: {.aside-stat}
+**`r comma(leader$votes)`**<br>
+<small>votes reported</small>
+:::
+:::
+
+::: {.aside-foot}
+Source file retrieved November 13, 2026 · figures reflect the file as posted.
+:::
+:::
+:::
+
+::: {.intro-strip}
+::: {.intro-title}
+::: {.section-kicker}
+The project
+:::
+
+## Results, with their geography and limits in view.
+:::
+
+::: {.intro-copy}
+Start with the candidate totals, then move from the statewide picture into precinct results. A separate county comparison looks at party vote share in State Senate races in 2024 and 2026—without treating aggregate results as evidence about individual voters.
+:::
+:::
+
+::: {.feature-grid}
+::: {.feature-card .feature-card-map}
+::: {.feature-number}
+01 / GEOGRAPHY
+:::
+
+::: {.feature-icon}
+⌖
+:::
+
+### Every mapped precinct has a source.
+
+Explore the leading U.S. Senate candidate in each precinct with votes and share on hover.
+
+[Open the precinct map →](north-carolina.html#precinct-map){.feature-link}
+:::
+
+::: {.feature-card .feature-card-results}
+::: {.feature-number}
+02 / CANDIDATES
+:::
+
+::: {.feature-icon}
+↗
+:::
+
+### Compare the statewide field.
+
+See candidate vote totals and shares, then sort county results to find close margins.
+
+[Explore the results →](north-carolina.html#candidate-results){.feature-link}
+:::
+
+::: {.feature-card .feature-card-history}
+::: {.feature-number}
+03 / COMPARISON
+:::
+
+::: {.feature-icon}
+⤴
+:::
+
+### Compare like with like.
+
+Track Democratic two-party share in county-level State Senate results across two general elections.
+
+[Read the comparison →](north-carolina.html#historical-comparison){.feature-link}
+:::
+:::
+
+::: {.home-note}
+::: {.note-mark}
+i
+:::
+
+**A note on status.** The charts reproduce the NCSBE results file retrieved November 13, 2026. This project does not independently certify results; the map excludes one real precinct whose identifier has no exact match in the available official boundary layer.
+
+[Sources & limitations →](about.html)
+:::

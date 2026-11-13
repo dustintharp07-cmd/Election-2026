@@ -1,21 +1,43 @@
 project:
   type: website
+  output-dir: _site
 
 website:
-  title: "Election"
+  title: "THE COUNT · 2026 Election Results"
+  description: "An independent, source-led analysis of North Carolina's 2026 election results."
+  search: false
   navbar:
+    background: "#142536"
+    foreground: "#F8F6F0"
+    title: "THE COUNT · 2026"
     left:
       - href: index.qmd
-        text: Home
-      - about.qmd
+        text: Overview
+      - text: States
+        menu:
+          - href: north-carolina.qmd
+            text: North Carolina · 2026
+      - href: about.qmd
+        text: Data & method
+  page-footer:
+    left: "Independent analysis · Official source data linked throughout"
+    right: "North Carolina · 2026"
 
 format:
   html:
-    theme:
-      - cosmo
-      - brand
+    theme: cosmo
     css: styles.css
-    toc: true
+    toc: false
+    code-tools: false
+    anchor-sections: false
+    smooth-scroll: true
+    link-external-newwindow: true
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  freeze: false
 
 
 

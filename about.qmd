@@ -1,5 +1,53 @@
 ---
-title: "About"
+title: "Data & method"
+description: "Sources, methods, limitations, and rebuild instructions for the North Carolina 2026 election analysis."
+page-layout: full
 ---
 
-About this site
+<section class="page-intro">
+  <p class="eyebrow">TRANSPARENCY / SOURCES / REPRODUCIBILITY</p>
+  <h1>Show the work.<br><em>Respect the limits.</em></h1>
+  <p>This site uses published North Carolina election results and official voting-precinct geography. The featured graphics describe the files; they do not infer why people voted as they did.</p>
+</section>
+
+<section class="method-section">
+  <p class="section-kicker">01 / Primary results</p>
+  <h2>North Carolina State Board of Elections</h2>
+  <p>The focal dataset is the NCSBE precinct-sorted results file for the November 3, 2026 general election. It reports candidate or referendum choice, party, county, precinct, election type, and vote totals by voting method. The results archive was retrieved November 13, 2026.</p>
+  <ul class="source-list">
+    <li><a href="https://www.ncsbe.gov/results-data/election-results/historical-election-results-data">NCSBE · Historical Election Results Data</a></li>
+    <li><a href="https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2026_11_03/results_pct_20261103.zip">Download · November 3, 2026 results ZIP</a></li>
+    <li><a href="https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/results_pct_20241105.zip">Download · November 5, 2024 comparison ZIP</a></li>
+    <li><a href="https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/layout_results_pct.txt">NCSBE · Results file layout</a></li>
+  </ul>
+  <p>The original 2026 ZIP and the November 5, 2024 ZIP used for the historical comparison are preserved under <code>data/north-carolina/raw/</code>. The NCSBE archives include results for contests beyond the examples featured on the dashboard.</p>
+</section>
+
+<section class="method-section">
+  <p class="section-kicker">02 / Precinct boundaries</p>
+  <h2>Official geography, matched explicitly</h2>
+  <p>The precinct map uses the <a href="https://www.nconemap.gov/datasets/NCDEM::voting-precincts/about">North Carolina Voting Precincts layer</a>, attributed to the North Carolina State Board of Elections, the Center for Geographic Information and Analysis, and NC OneMap. The statewide GeoJSON is stored in <code>data/north-carolina/geography/</code>.</p>
+  <p>Result precinct IDs are matched to boundary precinct IDs using the county name and precinct ID. Of 2,626 real precincts in the featured Senate result, 2,625 match exactly. Henderson County precinct <code>CV</code> has no matching polygon and is omitted from the map; it is not guessed or reassigned. The distributed boundaries are generalized with a 100-meter topology-preserving simplification for browser performance.</p>
+  <p>The precinct map contains real precincts only. Administrative reporting units, including early-voting sites, do not have precinct polygons and are excluded from the map. They remain included in the statewide and county vote totals.</p>
+</section>
+
+<section class="method-section">
+  <p class="section-kicker">03 / Reading the graphics</p>
+  <h2>What the numbers do—and do not—say</h2>
+  <ul class="method-list">
+    <li><strong>U.S. Senate candidate chart.</strong> Candidate share is each candidate’s total votes divided by all candidate-choice votes in the contest, including minor-party candidates. It is not a turnout measure.</li>
+    <li><strong>Precinct map.</strong> Fill color identifies the party of the candidate with the most votes among the matched precinct’s reported candidate choices. Hover labels show the candidate, votes, share of mapped candidate votes, and lead over the next candidate.</li>
+    <li><strong>County table.</strong> County vote totals include all NCSBE reporting units in that county, including administrative precincts; county shares therefore need not equal a sum over the polygons shown on the map.</li>
+    <li><strong>2024–2026 comparison.</strong> Democratic share is calculated as Democratic votes divided by Democratic plus Republican votes in the county’s State Senate contests. Third-party and unaffiliated choices are excluded from that two-party denominator. Both years are November general elections, and results are aggregated to the same 100 counties. Different candidates—and district-level contests—are being compared; the chart does not track individuals, establish causes, or describe voter motivation.</li>
+  </ul>
+  <p>All figures reproduce the source files as downloaded. This project does not independently certify the November 2026 results or label them certified.</p>
+</section>
+
+<section class="method-section">
+  <p class="section-kicker">04 / Rebuild and extend</p>
+  <h2>Designed to update—and to grow</h2>
+  <p>From the project root, run <code>Rscript scripts/process_north_carolina.R</code> to rebuild the processed tables and precinct map, then run <code>quarto render</code> to recreate the HTML site. To update the analysis, replace the raw results ZIP with the new official file and update its filename in the processing script if the election date changes.</p>
+  <p>Publishing to GitHub Pages is supported by this Quarto website project; publish from the repository root with <code>quarto publish gh-pages</code>.</p>
+  <p>The analysis uses R packages <code>tidyverse</code>, <code>sf</code>, <code>leaflet</code>, <code>plotly</code>, <code>DT</code>, and <code>scales</code>. If any are missing, install them in R with <code>install.packages(c("tidyverse", "sf", "leaflet", "plotly", "DT", "scales"))</code>. Quarto must also be installed to render or publish the site.</p>
+  <p>State-specific assets and derived files live under <code>data/north-carolina/</code>; the navigation already groups state dashboards beneath “States.” Additional state data and pages can be added there without changing the North Carolina analysis.</p>
+</section>
